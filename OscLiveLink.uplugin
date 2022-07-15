@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "OscLiveLink",
+	"Description": "Live link tracking over OSC",
+	"Category": "Other",
+	"CreatedBy": "Launchvox",
+	"CreatedByURL": "https://www.launchvox.com",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "OscLiveLink",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "OSC",
+			"Enabled": true
+		}
+	]
+}
