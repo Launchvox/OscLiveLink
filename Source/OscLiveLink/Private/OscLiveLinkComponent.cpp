@@ -42,8 +42,8 @@ void UOscLiveLinkComponent::InitializeSubject()
 	Subjects.Reserve(1);
 	Subjects.Add(FName(TEXT("OscHead")));
 
-	ShapeNames.Reserve(55);
 	// Mac OSC List ///////
+	/*ShapeNames.Reserve(55);
 	ShapeNames.Add(FName(TEXT("BrowInnerUp")));
 	ShapeNames.Add(FName(TEXT("BrowDownLeft")));
 	ShapeNames.Add(FName(TEXT("BrowDownRight")));
