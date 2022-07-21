@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "OscLiveLink",
+	"FriendlyName": "OSC Live Link",
 	"Description": "Live link tracking over OSC",
 	"Category": "Other",
 	"CreatedBy": "Launchvox",
@@ -18,7 +18,7 @@
 		{
 			"Name": "OscLiveLink",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PostConfigInit"
 		}
 	],
 	"Plugins": [
