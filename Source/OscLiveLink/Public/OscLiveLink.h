@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// ©2021-2022, Launchvox, Inc. All rights reserved.
 
 #pragma once
 

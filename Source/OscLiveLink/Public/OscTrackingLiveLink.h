@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// ©2021-2022, Launchvox, Inc. All rights reserved.
 
 #pragma once
 

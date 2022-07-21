@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// ©2021-2022, Launchvox, Inc. All rights reserved.
 
 #include "OscLiveLink.h"
 #include "OscTrackingLiveLink.h"
@@ -6,27 +6,6 @@
 #define LOCTEXT_NAMESPACE "FOscLiveLinkModule"
 
 DEFINE_LOG_CATEGORY(LogOscLiveLink);
-
-
-//TSharedPtr<FOscTrackingLiveLink, ESPMode::ThreadSafe> PoseTrackingLiveLinkInstance;
-
-/*void FOscLiveLinkModule::StartupModule()
-{
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-
-	PoseTrackingLiveLinkInstance = MakeShared<FOscTrackingLiveLink, ESPMode::ThreadSafe>();
-	PoseTrackingLiveLinkInstance->Init();
-
-}
-void FOscLiveLinkModule::ShutdownModule()
-{
-	PoseTrackingLiveLinkInstance->Shutdown();
-	PoseTrackingLiveLinkInstance = nullptr;
-}
-*/
-
-////////////////////////////////
-///////////////////////////////
 
 void FOscLiveLinkModule::StartupModule()
 {
@@ -85,10 +64,6 @@ void FOscLiveLinkModule::InitializeOSCServer()
 	}
 
 }
-
-///////////////////////////////
-//////////////////////////////
-
 
 IMPLEMENT_MODULE(FOscLiveLinkModule, OscLiveLink)
 

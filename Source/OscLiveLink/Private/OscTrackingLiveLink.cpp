@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// ©2021-2022, Launchvox, Inc. All rights reserved.
 
 
 #include "OscTrackingLiveLink.h"
@@ -169,7 +169,7 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		UpdateSubject();
 		return;
 	}
-	/*else if (FString("/HRQ") == StringAddress.Left(4)) {
+	else if (FString("/HRQ") == StringAddress.Left(4)) {
 		//Head Rotation Quaternion
 		float buffer;
 		UOSCManager::GetFloat(Message.GetPacket(), 0, buffer);
@@ -178,19 +178,6 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		Blendshapes[52] = buffer;
 		UOSCManager::GetFloat(Message.GetPacket(), 2, buffer);
 		Blendshapes[54] = buffer;
-		UpdateSubject();
-		return;
-	}*/
-	else if (FString("/HR")==StringAddress.Left(3)) {
-		//Head Rotation
-		float buffer;
-		float degreesToRadians = 0.0174533;
-		UOSCManager::GetFloat(Message.GetPacket(), 0, buffer);
-		Blendshapes[53] = (buffer * -1) * degreesToRadians;
-		UOSCManager::GetFloat(Message.GetPacket(), 1, buffer);
-		Blendshapes[52] = buffer * degreesToRadians;
-		UOSCManager::GetFloat(Message.GetPacket(), 2, buffer);
-		Blendshapes[54] = buffer * degreesToRadians;
 		UpdateSubject();
 		return;
 	}
