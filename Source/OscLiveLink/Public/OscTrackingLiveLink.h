@@ -8,6 +8,7 @@
 #include "Roles/LiveLinkBasicRole.h"
 #include "OSCManager.h"
 #include "OSCMessage.h"
+#include "OSCBundle.h"
 #include "OSCServer.h"
 
 
@@ -50,6 +51,8 @@ private:
 
 	/** Receive OSC server message handler */
 	void OSCReceivedMessageEvent(const FOSCMessage& Message, const FString& IPAddress, uint16 Port);
+
+	void OSCReceivedMessageBundleEvent(const FOSCBundle& Bundle, const FString& IPAddress, uint16 Port);
 
 	FName PoseTrackingLiveLinkSubjectName;
 	// The id of this device 

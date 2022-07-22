@@ -42,8 +42,8 @@ void FOscLiveLinkModule::InitializeOSCServer()
 	}
 
 	//Auto determines local IP.
-	const FString& ServerAddress = "";
-	uint16 ServerPort = 9000;
+	const FString& ServerAddress = "127.0.0.1";
+	uint16 ServerPort = 9001;
 
 	if (OSCServer)
 	{

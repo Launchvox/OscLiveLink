@@ -19,6 +19,8 @@ void FOscTrackingLiveLink::Init()
 	IModularFeatures::Get().RegisterModularFeature(GetModularFeatureName(), this);
 	InitializeSubject();
 	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscMessageReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageEvent);
+	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscBundleReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageBundleEvent);
+
 }
 
 void FOscTrackingLiveLink::Shutdown()
@@ -182,5 +184,13 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		return;
 	}
 	//Did not find matching address pattern
+}
+void FOscTrackingLiveLink::OSCReceivedMessageBundleEvent(const FOSCBundle& Bundle, const FString& IPAddress, uint16 Port)
+{
+	Bundle.GetPacket();
+	TArray<FOSCMessage> Messages = UOSCManager::GetMessagesFromBundle(Bundle);
+	for (int i = 0; i < Messages.Num(); i++) {
+		OSCReceivedMessageEvent(Messages[i], IPAddress, Port);
+	}
 }
 
