@@ -3,17 +3,21 @@
 
 #include "OscTrackingLiveLink.h"
 #include "OscLiveLink.h"
+
+/*Class Constructor*/
 FOscTrackingLiveLink::FOscTrackingLiveLink()
 {
 	Blendshapes.Init(0.0, 55);
 }
 
+/*Class Constructor*/
 FOscTrackingLiveLink::~FOscTrackingLiveLink()
 {
 	// Should only be called durirng shutdown
 	check(IsEngineExitRequested());
 }
 
+/*Initialize only after the server is running so that bindings succeed*/
 void FOscTrackingLiveLink::Init()
 {
 	IModularFeatures::Get().RegisterModularFeature(GetModularFeatureName(), this);
@@ -23,6 +27,7 @@ void FOscTrackingLiveLink::Init()
 
 }
 
+/*Shutdown when the module unloads, or when the serve changes*/
 void FOscTrackingLiveLink::Shutdown()
 {
 	FOscTrackingLiveLink::ClearLiveLinkProvider();
@@ -31,10 +36,12 @@ void FOscTrackingLiveLink::Shutdown()
 	FCoreDelegates::OnFEngineLoopInitComplete.RemoveAll(this);
 }
 
+/*TODO: Handle reinit and live settings changes*/
 void FOscTrackingLiveLink::OnConnectionStatusChanged()
 {
 }
 
+/*Setup the livelink subject*/
 void FOscTrackingLiveLink::InitializeSubject()
 {
 	if (LiveLinkProvider.IsValid())
@@ -122,6 +129,8 @@ void FOscTrackingLiveLink::InitializeSubject()
 	FTSTicker::GetCoreTicker().Tick(1.0f);
 
 }
+
+/*Triggered when OSC packages are received to update curve data*/
 void FOscTrackingLiveLink::UpdateSubject()
 {
 	if (LiveLinkProvider.IsValid())
@@ -133,6 +142,8 @@ void FOscTrackingLiveLink::UpdateSubject()
 		LiveLinkProvider->UpdateSubjectFrameData(FName(TEXT("OscHead")), MoveTemp(FrameData));
 	}
 }
+
+/*The subject specific shutdown process*/
 void FOscTrackingLiveLink::ClearLiveLinkProvider() {
 
 	if (ConnectionStatusChangedHandle.IsValid())
@@ -158,6 +169,7 @@ void FOscTrackingLiveLink::ClearLiveLinkProvider() {
 	}
 }
 
+/*Single message incoming delegate*/
 void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, const FString& IPAddress, uint16 Port)
 {
 	FString StringAddress = UOSCManager::ObjectPathFromOSCAddress(Message.GetAddress());
@@ -166,7 +178,13 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		int32 blendshapeIndex = 0;
 		float buffer = 0.0;
 		UOSCManager::GetInt32(Message.GetPacket(), 0, blendshapeIndex);
-		UOSCManager::GetFloat(Message.GetPacket(), 1, buffer);
+		//Try to get index 1 as float, fallback to int if float is not found.
+		if (UOSCManager::GetFloat(Message.GetPacket(), 1, buffer)!=true)
+		{
+			int32 intBuffer = 0;
+			UOSCManager::GetInt32(Message.GetPacket(), 1, intBuffer);
+			buffer = intBuffer;
+		};
 		Blendshapes[blendshapeIndex] = buffer;
 		UpdateSubject();
 		return;
@@ -185,6 +203,8 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 	}
 	//Did not find matching address pattern
 }
+
+/*Bundle of messages incoming delegate*/
 void FOscTrackingLiveLink::OSCReceivedMessageBundleEvent(const FOSCBundle& Bundle, const FString& IPAddress, uint16 Port)
 {
 	Bundle.GetPacket();
