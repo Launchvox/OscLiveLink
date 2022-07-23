@@ -184,6 +184,8 @@ void FOscTrackingLiveLink::GetFloatWithFallbackInt(const FOSCMessage& Message, f
 void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, const FString& IPAddress, uint16 Port)
 {
 	FString StringAddress = UOSCManager::ObjectPathFromOSCAddress(Message.GetAddress());
+	
+	
 	if (FString("/W")==StringAddress.Left(2)) {
 		//Blendshapes
 		int32 blendshapeIndex = 0;
@@ -195,28 +197,35 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		UpdateSubject();
 		return;
 	}
+	//Head Rotation Quaternion
 	else if (FString("/HRQ") == StringAddress.Left(4)) {
-		//Head Rotation Quaternion
-		float buffer;
-		GetFloatWithFallbackInt(Message, buffer, 0);
-		Blendshapes[53] = (buffer * -1) ;
-		GetFloatWithFallbackInt(Message, buffer, 1);
-		Blendshapes[52] = buffer;
-		GetFloatWithFallbackInt(Message, buffer, 2);
-		Blendshapes[54] = buffer;
-		UpdateSubject();
+		// Prevents both rotatio modes executing at once.
+		if(FOscLiveLinkModule::UseQuaternionRotation) {
+			float buffer;
+			GetFloatWithFallbackInt(Message, buffer, 0);
+			Blendshapes[53] = (buffer * -1);
+			GetFloatWithFallbackInt(Message, buffer, 1);
+			Blendshapes[52] = buffer;
+			GetFloatWithFallbackInt(Message, buffer, 2);
+			Blendshapes[54] = buffer;
+			UpdateSubject();
+		}
 		return;
-	}
+		}
 	else if (FString("/HR") == StringAddress.Left(3)) {
-		//Head Rotation, Radians to Degrees
-		float buffer;
-		GetFloatWithFallbackInt(Message, buffer, 0);
-		Blendshapes[53] = (buffer * -1);
-		GetFloatWithFallbackInt(Message, buffer, 1);
-		Blendshapes[52] = buffer;
-		GetFloatWithFallbackInt(Message, buffer, 2);
-		Blendshapes[54] = buffer;
-		UpdateSubject();
+		// Prevents both rotatio modes executing at once.
+		if (FOscLiveLinkModule::UseQuaternionRotation == false) {
+			//Head Rotation, Radians to Degrees
+			float buffer;
+			float degreesToRadians = 0.0174533;
+			GetFloatWithFallbackInt(Message, buffer, 0);
+			Blendshapes[53] = (buffer * -1) * degreesToRadians;
+			GetFloatWithFallbackInt(Message, buffer, 1);
+			Blendshapes[52] = buffer * degreesToRadians;
+			GetFloatWithFallbackInt(Message, buffer, 2);
+			Blendshapes[54] = buffer * degreesToRadians;
+			UpdateSubject();
+		}
 		return;
 	}
 }
