@@ -169,6 +169,17 @@ void FOscTrackingLiveLink::ClearLiveLinkProvider() {
 	}
 }
 
+/*Try to get index as float, fallback to int if float is not found.*/
+void FOscTrackingLiveLink::GetFloatWithFallbackInt(const FOSCMessage& Message, float& buffer, uint16 index)
+{
+	if (UOSCManager::GetFloat(Message.GetPacket(), index, buffer) != true)
+	{
+		int32 intBuffer = 0;
+		UOSCManager::GetInt32(Message.GetPacket(), index, intBuffer);
+		buffer = intBuffer;
+	}
+}
+
 /*Single message incoming delegate*/
 void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, const FString& IPAddress, uint16 Port)
 {
@@ -179,12 +190,7 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		float buffer = 0.0;
 		UOSCManager::GetInt32(Message.GetPacket(), 0, blendshapeIndex);
 		//Try to get index 1 as float, fallback to int if float is not found.
-		if (UOSCManager::GetFloat(Message.GetPacket(), 1, buffer)!=true)
-		{
-			int32 intBuffer = 0;
-			UOSCManager::GetInt32(Message.GetPacket(), 1, intBuffer);
-			buffer = intBuffer;
-		};
+		GetFloatWithFallbackInt(Message, buffer, 1);
 		Blendshapes[blendshapeIndex] = buffer;
 		UpdateSubject();
 		return;
@@ -192,11 +198,11 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 	else if (FString("/HRQ") == StringAddress.Left(4)) {
 		//Head Rotation Quaternion
 		float buffer;
-		UOSCManager::GetFloat(Message.GetPacket(), 0, buffer);
+		GetFloatWithFallbackInt(Message, buffer, 0);
 		Blendshapes[53] = (buffer * -1) ;
-		UOSCManager::GetFloat(Message.GetPacket(), 1, buffer);
+		GetFloatWithFallbackInt(Message, buffer, 1);
 		Blendshapes[52] = buffer;
-		UOSCManager::GetFloat(Message.GetPacket(), 2, buffer);
+		GetFloatWithFallbackInt(Message, buffer, 2);
 		Blendshapes[54] = buffer;
 		UpdateSubject();
 		return;
@@ -204,17 +210,15 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 	else if (FString("/HR") == StringAddress.Left(3)) {
 		//Head Rotation, Radians to Degrees
 		float buffer;
-		UOSCManager::GetFloat(Message.GetPacket(), 0, buffer);
-		Blendshapes[53] = (buffer * -1) * 57.2958;
-		UOSCManager::GetFloat(Message.GetPacket(), 1, buffer);
-		Blendshapes[52] = buffer * 57.2958;
-		UOSCManager::GetFloat(Message.GetPacket(), 2, buffer);
-		Blendshapes[54] = buffer * 57.2958;
+		GetFloatWithFallbackInt(Message, buffer, 0);
+		Blendshapes[53] = (buffer * -1);
+		GetFloatWithFallbackInt(Message, buffer, 1);
+		Blendshapes[52] = buffer;
+		GetFloatWithFallbackInt(Message, buffer, 2);
+		Blendshapes[54] = buffer;
 		UpdateSubject();
 		return;
 	}
-
-	//Did not find matching address pattern
 }
 
 /*Bundle of messages incoming delegate*/

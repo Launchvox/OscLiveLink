@@ -49,6 +49,8 @@ private:
 	void UpdateSubject();
 	void ClearLiveLinkProvider();
 
+	void GetFloatWithFallbackInt(const FOSCMessage& Message, float& buffer, uint16 index);
+
 	/** Receive OSC server message handler */
 	void OSCReceivedMessageEvent(const FOSCMessage& Message, const FString& IPAddress, uint16 Port);
 
