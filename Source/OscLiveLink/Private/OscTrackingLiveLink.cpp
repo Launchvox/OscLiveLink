@@ -201,6 +201,19 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		UpdateSubject();
 		return;
 	}
+	else if (FString("/HR") == StringAddress.Left(3)) {
+		//Head Rotation, Radians to Degrees
+		float buffer;
+		UOSCManager::GetFloat(Message.GetPacket(), 0, buffer);
+		Blendshapes[53] = (buffer * -1) * 57.2958;
+		UOSCManager::GetFloat(Message.GetPacket(), 1, buffer);
+		Blendshapes[52] = buffer * 57.2958;
+		UOSCManager::GetFloat(Message.GetPacket(), 2, buffer);
+		Blendshapes[54] = buffer * 57.2958;
+		UpdateSubject();
+		return;
+	}
+
 	//Did not find matching address pattern
 }
 
