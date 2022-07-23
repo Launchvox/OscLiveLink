@@ -16,7 +16,7 @@ class FOscLiveLinkModule : public IModuleInterface
 public:
 
 	//Global Settings
-	const FString& ServerAddress = "127.0.0.1";
+	FString ServerAddress = FString("127.0.0.1");
 	uint16 ServerPort = 9001;
 	const static bool UseQuaternionRotation = false;
 
