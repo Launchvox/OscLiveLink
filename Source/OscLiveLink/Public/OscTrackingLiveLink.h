@@ -10,6 +10,8 @@
 #include "OSCMessage.h"
 #include "OSCBundle.h"
 #include "OSCServer.h"
+#include "OSCLiveLink_Settings.h"
+
 
 
 /**
@@ -42,8 +44,8 @@ private:
 	TArray<FName> Subjects;
 	TArray<FName> ShapeNames;
 	FDelegateHandle OscHandle;
-
 	TArray<float> Blendshapes;
+	EOscRotationFormat RotationFormat;
 
 	void InitializeSubject();
 	void UpdateSubject();

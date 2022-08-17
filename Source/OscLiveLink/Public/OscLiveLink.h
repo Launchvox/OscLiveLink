@@ -15,11 +15,6 @@ class FOscLiveLinkModule : public IModuleInterface
 {
 public:
 
-	//Global Settings
-	FString ServerAddress = FString("127.0.0.1");
-	uint16 ServerPort = 9001;
-	const static bool UseQuaternionRotation = false;
-
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
@@ -48,6 +43,6 @@ private:
 	void OnEngineLoopInitComplete();
 
 	/** Start an OSC server and bind a an OSC listener to it. */
-	void InitializeOSCServer();
+	void InitializeOSCServer(FString Address, int Port);
 
 };

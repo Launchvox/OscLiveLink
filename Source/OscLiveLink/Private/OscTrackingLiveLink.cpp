@@ -21,6 +21,10 @@ FOscTrackingLiveLink::~FOscTrackingLiveLink()
 void FOscTrackingLiveLink::Init()
 {
 	IModularFeatures::Get().RegisterModularFeature(GetModularFeatureName(), this);
+	
+	UOSCLiveLink_Settings* Plugin_Settings = GetMutableDefault<UOSCLiveLink_Settings>();
+	RotationFormat = Plugin_Settings->RotationFormat;
+	
 	InitializeSubject();
 	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscMessageReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageEvent);
 	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscBundleReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageBundleEvent);
@@ -52,73 +56,73 @@ void FOscTrackingLiveLink::InitializeSubject()
 
 	LiveLinkProvider = ILiveLinkProvider::CreateLiveLinkProvider(TEXT("HallwayTile OSC"));
 	ConnectionStatusChangedHandle = LiveLinkProvider->RegisterConnStatusChangedHandle(
-	FLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(&OnConnectionStatusChanged));
+		FLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(&OnConnectionStatusChanged));
 
 
 	//Initialize Subjects Array
 	Subjects.Reserve(1);
 	Subjects.Add(FName(TEXT("OscHead")));
 
-	// Mac OSC List ///////
+	// Blenshape OSC List ///////
 	ShapeNames.Reserve(55);
-	ShapeNames.Add(FName(TEXT("BrowInnerUp")));
-	ShapeNames.Add(FName(TEXT("BrowDownLeft")));
-	ShapeNames.Add(FName(TEXT("BrowDownRight")));
-	ShapeNames.Add(FName(TEXT("BrowOuterUpLeft")));
-	ShapeNames.Add(FName(TEXT("BrowOuterUpRight")));
-	ShapeNames.Add(FName(TEXT("EyeLookUpLeft")));
-	ShapeNames.Add(FName(TEXT("EyeLookUpRight")));
-	ShapeNames.Add(FName(TEXT("EyeLookDownLeft")));
-	ShapeNames.Add(FName(TEXT("EyeLookDownRight")));
-	ShapeNames.Add(FName(TEXT("EyeLookInLeft")));
-	ShapeNames.Add(FName(TEXT("EyeLookInRight")));
-	ShapeNames.Add(FName(TEXT("EyeLookOutLeft")));
-	ShapeNames.Add(FName(TEXT("EyeLookOutRight")));
-	ShapeNames.Add(FName(TEXT("EyeBlinkLeft")));
-	ShapeNames.Add(FName(TEXT("EyeBlinkRight")));
-	ShapeNames.Add(FName(TEXT("EyeSquintLeft")));
-	ShapeNames.Add(FName(TEXT("EyeSquintRight")));
-	ShapeNames.Add(FName(TEXT("EyeWideLeft")));
-	ShapeNames.Add(FName(TEXT("EyeWideRight")));
-	ShapeNames.Add(FName(TEXT("CheekPuff")));
-	ShapeNames.Add(FName(TEXT("CheekSquintLeft")));
-	ShapeNames.Add(FName(TEXT("CheekSquintRight")));
-	ShapeNames.Add(FName(TEXT("NoseSneerLeft")));
-	ShapeNames.Add(FName(TEXT("NoseSneerRight")));
-	ShapeNames.Add(FName(TEXT("JawOpen")));
-	ShapeNames.Add(FName(TEXT("JawForward")));
-	ShapeNames.Add(FName(TEXT("JawLeft")));
-	ShapeNames.Add(FName(TEXT("JawRight")));
-	ShapeNames.Add(FName(TEXT("MouthFunnel")));
-	ShapeNames.Add(FName(TEXT("MouthPucker")));
-	ShapeNames.Add(FName(TEXT("MouthLeft")));
-	ShapeNames.Add(FName(TEXT("MouthRight")));
-	ShapeNames.Add(FName(TEXT("MouthRollUpper")));
-	ShapeNames.Add(FName(TEXT("MouthRollLower")));
-	ShapeNames.Add(FName(TEXT("MouthShrugUpper")));
-	ShapeNames.Add(FName(TEXT("MouthShrugLower")));
-	ShapeNames.Add(FName(TEXT("MouthClose")));
-	ShapeNames.Add(FName(TEXT("MouthSmileLeft")));
-	ShapeNames.Add(FName(TEXT("MouthSmileRight")));
-	ShapeNames.Add(FName(TEXT("MouthFrownLeft")));
-	ShapeNames.Add(FName(TEXT("MouthFrownRight")));
-	ShapeNames.Add(FName(TEXT("MouthDimpleLeft")));
-	ShapeNames.Add(FName(TEXT("MouthDimpleRight")));
-	ShapeNames.Add(FName(TEXT("MouthUpperUpLeft")));
-	ShapeNames.Add(FName(TEXT("MouthUpperUpRight")));
-	ShapeNames.Add(FName(TEXT("MouthLowerDownLeft")));
-	ShapeNames.Add(FName(TEXT("MouthLowerDownRight")));
-	ShapeNames.Add(FName(TEXT("MouthPressLeft")));
-	ShapeNames.Add(FName(TEXT("MouthPressRight")));
-	ShapeNames.Add(FName(TEXT("MouthStretchLeft")));
-	ShapeNames.Add(FName(TEXT("MouthStretchRight")));
-	ShapeNames.Add(FName(TEXT("TongueOut")));
-	ShapeNames.Add(FName(TEXT("headYaw")));
-	ShapeNames.Add(FName(TEXT("headPitch")));
-	ShapeNames.Add(FName(TEXT("headRoll")));
-	/////////////////
-
-
+	FName Arr[] = {
+		FName(TEXT("BrowInnerUp")),
+		FName(TEXT("BrowDownLeft")),
+		FName(TEXT("BrowDownRight")),
+		FName(TEXT("BrowOuterUpLeft")),
+		FName(TEXT("BrowOuterUpRight")),
+		FName(TEXT("EyeLookUpLeft")),
+		FName(TEXT("EyeLookUpRight")),
+		FName(TEXT("EyeLookDownLeft")),
+		FName(TEXT("EyeLookDownRight")),
+		FName(TEXT("EyeLookInLeft")),
+		FName(TEXT("EyeLookInRight")),
+		FName(TEXT("EyeLookOutLeft")),
+		FName(TEXT("EyeLookOutRight")),
+		FName(TEXT("EyeBlinkLeft")),
+		FName(TEXT("EyeBlinkRight")),
+		FName(TEXT("EyeSquintLeft")),
+		FName(TEXT("EyeSquintRight")),
+		FName(TEXT("EyeWideLeft")),
+		FName(TEXT("EyeWideRight")),
+		FName(TEXT("CheekPuff")),
+		FName(TEXT("CheekSquintLeft")),
+		FName(TEXT("CheekSquintRight")),
+		FName(TEXT("NoseSneerLeft")),
+		FName(TEXT("NoseSneerRight")),
+		FName(TEXT("JawOpen")),
+		FName(TEXT("JawForward")),
+		FName(TEXT("JawLeft")),
+		FName(TEXT("JawRight")),
+		FName(TEXT("MouthFunnel")),
+		FName(TEXT("MouthPucker")),
+		FName(TEXT("MouthLeft")),
+		FName(TEXT("MouthRight")),
+		FName(TEXT("MouthRollUpper")),
+		FName(TEXT("MouthRollLower")),
+		FName(TEXT("MouthShrugUpper")),
+		FName(TEXT("MouthShrugLower")),
+		FName(TEXT("MouthClose")),
+		FName(TEXT("MouthSmileLeft")),
+		FName(TEXT("MouthSmileRight")),
+		FName(TEXT("MouthFrownLeft")),
+		FName(TEXT("MouthFrownRight")),
+		FName(TEXT("MouthDimpleLeft")),
+		FName(TEXT("MouthDimpleRight")),
+		FName(TEXT("MouthUpperUpLeft")),
+		FName(TEXT("MouthUpperUpRight")),
+		FName(TEXT("MouthLowerDownLeft")),
+		FName(TEXT("MouthLowerDownRight")),
+		FName(TEXT("MouthPressLeft")),
+		FName(TEXT("MouthPressRight")),
+		FName(TEXT("MouthStretchLeft")),
+		FName(TEXT("MouthStretchRight")),
+		FName(TEXT("TongueOut")),
+		FName(TEXT("headYaw")),
+		FName(TEXT("headPitch")),
+		FName(TEXT("headRoll"))
+	};
+	ShapeNames.Append(Arr, UE_ARRAY_COUNT(Arr));
 
 
 	FLiveLinkStaticDataStruct StaticDataStruct(FLiveLinkBaseStaticData::StaticStruct());
@@ -197,9 +201,9 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		UpdateSubject();
 		return;
 	}
+	//TODO: Implement Quaternion support
 	//Head Rotation Quaternion
-	else if (FString("/HRQ") == StringAddress.Left(4)) {
-		// Prevents both rotatio modes executing at once.
+	/*else if (FString("/HRQ") == StringAddress.Left(4)) {
 		if(FOscLiveLinkModule::UseQuaternionRotation) {
 			float buffer;
 			GetFloatWithFallbackInt(Message, buffer, 0);
@@ -211,22 +215,22 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 			UpdateSubject();
 		}
 		return;
-		}
+	}*/
+	// Head roatoin Euler
 	else if (FString("/HR") == StringAddress.Left(3)) {
-		// Prevents both rotatio modes executing at once.
-		if (FOscLiveLinkModule::UseQuaternionRotation == false) {
-			//Head Rotation, Radians to Degrees
 			float buffer;
-			float degreesToRadians = 0.0174533;
+			float rotationsMult = 1.0;
+			//if (RotationFormat == EOscRotationFormat::Radians)
+			{
+				rotationsMult = 0.0174533;
+			}
 			GetFloatWithFallbackInt(Message, buffer, 0);
-			Blendshapes[53] = (buffer * -1) * degreesToRadians;
+			Blendshapes[53] = (buffer * -1) * rotationsMult;
 			GetFloatWithFallbackInt(Message, buffer, 1);
-			Blendshapes[52] = buffer * degreesToRadians;
+			Blendshapes[52] = buffer * rotationsMult;
 			GetFloatWithFallbackInt(Message, buffer, 2);
-			Blendshapes[54] = buffer * degreesToRadians;
+			Blendshapes[54] = buffer * rotationsMult;
 			UpdateSubject();
-		}
-		return;
 	}
 }
 
