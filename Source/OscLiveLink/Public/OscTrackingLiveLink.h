@@ -33,8 +33,11 @@ public:
 		return FeatureName;
 	}
 
+	// Called from settings Objects 
+	void OnServerSettingsChanged();
+
 protected:
-	static void OnConnectionStatusChanged();
+
 
 private:
 

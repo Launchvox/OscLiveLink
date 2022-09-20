@@ -3,6 +3,8 @@
 
 #include "OscTrackingLiveLink.h"
 #include "OscLiveLink.h"
+#include "Math/Quat.h"
+
 
 /*Class Constructor*/
 FOscTrackingLiveLink::FOscTrackingLiveLink()
@@ -13,8 +15,8 @@ FOscTrackingLiveLink::FOscTrackingLiveLink()
 /*Class Constructor*/
 FOscTrackingLiveLink::~FOscTrackingLiveLink()
 {
-	// Should only be called durirng shutdown
-	check(IsEngineExitRequested());
+	// Should only be called during shutdown
+	//check(IsEngineExitRequested());
 }
 
 /*Initialize only after the server is running so that bindings succeed*/
@@ -31,7 +33,7 @@ void FOscTrackingLiveLink::Init()
 
 }
 
-/*Shutdown when the module unloads, or when the serve changes*/
+/*Shutdown when the module unloads, or when the server changes*/
 void FOscTrackingLiveLink::Shutdown()
 {
 	FOscTrackingLiveLink::ClearLiveLinkProvider();
@@ -40,10 +42,18 @@ void FOscTrackingLiveLink::Shutdown()
 	FCoreDelegates::OnFEngineLoopInitComplete.RemoveAll(this);
 }
 
-/*TODO: Handle reinit and live settings changes*/
-void FOscTrackingLiveLink::OnConnectionStatusChanged()
+/* Handle reinit and live settings changes*/
+void FOscTrackingLiveLink::OnServerSettingsChanged()
 {
-}
+	// Get and apply reset on all Objects of class. Should only ever be one.
+
+	FOscLiveLinkModule Module = FOscLiveLinkModule::Get();
+
+	UOSCLiveLink_Settings* Plugin_Settings = GetMutableDefault<UOSCLiveLink_Settings>();
+	RotationFormat = Plugin_Settings->RotationFormat;
+	Module.InitializeOSCServer(Plugin_Settings->ListeningAddress, Plugin_Settings->ListeningPort);
+	
+	}
 
 /*Setup the livelink subject*/
 void FOscTrackingLiveLink::InitializeSubject()
@@ -55,8 +65,8 @@ void FOscTrackingLiveLink::InitializeSubject()
 	}
 
 	LiveLinkProvider = ILiveLinkProvider::CreateLiveLinkProvider(TEXT("HallwayTile OSC"));
-	ConnectionStatusChangedHandle = LiveLinkProvider->RegisterConnStatusChangedHandle(
-		FLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(&OnConnectionStatusChanged));
+	//ConnectionStatusChangedHandle = LiveLinkProvider->RegisterConnStatusChangedHandle(
+	//	FLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(&OnConnectionStatusChanged));
 
 
 	//Initialize Subjects Array
@@ -201,36 +211,42 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		UpdateSubject();
 		return;
 	}
-	//TODO: Implement Quaternion support
 	//Head Rotation Quaternion
-	/*else if (FString("/HRQ") == StringAddress.Left(4)) {
-		if(FOscLiveLinkModule::UseQuaternionRotation) {
+	else if (FString("/HRQ") == StringAddress.Left(4) && RotationFormat == EOscRotationFormat::Quaternion) {
+			FQuat Quat;
 			float buffer;
 			GetFloatWithFallbackInt(Message, buffer, 0);
-			Blendshapes[53] = (buffer * -1);
+			Quat.X = buffer;
 			GetFloatWithFallbackInt(Message, buffer, 1);
-			Blendshapes[52] = buffer;
+			Quat.Y = buffer;
 			GetFloatWithFallbackInt(Message, buffer, 2);
-			Blendshapes[54] = buffer;
+			Quat.Z = buffer;
+			GetFloatWithFallbackInt(Message, buffer, 3);
+			Quat.W = buffer;
+			
+
+			FVector QuatToEuler = Quat.Euler();
+
+			Blendshapes[52] = QuatToEuler.X;
+			Blendshapes[53] = QuatToEuler.Y * -1;
+			Blendshapes[54] = QuatToEuler.Z;
+
 			UpdateSubject();
-		}
-		return;
-	}*/
+			return;
+	}
 	// Head roatoin Euler
-	else if (FString("/HR") == StringAddress.Left(3)) {
-			float buffer;
-			float rotationsMult = 1.0;
-			//if (RotationFormat == EOscRotationFormat::Radians)
-			{
-				rotationsMult = 0.0174533;
-			}
-			GetFloatWithFallbackInt(Message, buffer, 0);
-			Blendshapes[53] = (buffer * -1) * rotationsMult;
-			GetFloatWithFallbackInt(Message, buffer, 1);
-			Blendshapes[52] = buffer * rotationsMult;
-			GetFloatWithFallbackInt(Message, buffer, 2);
-			Blendshapes[54] = buffer * rotationsMult;
-			UpdateSubject();
+	else if (FString("/HR") == StringAddress.Left(3) && RotationFormat == EOscRotationFormat::Euler) {
+		float buffer;
+		//Scale rotation factor from degrees to radian
+		float rotationsMult = 0.0174533;
+		GetFloatWithFallbackInt(Message, buffer, 0);
+		Blendshapes[53] = (buffer * -1) * rotationsMult;
+		GetFloatWithFallbackInt(Message, buffer, 1);
+		Blendshapes[52] = buffer * rotationsMult;
+		GetFloatWithFallbackInt(Message, buffer, 2);
+		Blendshapes[54] = buffer * rotationsMult;
+		UpdateSubject();
+		return;
 	}
 }
 

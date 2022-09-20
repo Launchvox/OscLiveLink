@@ -38,11 +38,13 @@ public:
 
 	TSharedPtr<FOscTrackingLiveLink, ESPMode::ThreadSafe> PoseTrackingLiveLinkInstance;
 
+	/** Start an OSC server and bind a an OSC listener to it. */
+	void InitializeOSCServer(FString Address, int Port);
+
 private:
 
 	void OnEngineLoopInitComplete();
 
-	/** Start an OSC server and bind a an OSC listener to it. */
-	void InitializeOSCServer(FString Address, int Port);
+
 
 };
