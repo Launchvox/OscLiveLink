@@ -66,6 +66,7 @@ There is a bug in Unreal's `5.0.1` version of Metahumans that has a missing blen
 Web Demo
 ---
 If you're running the [web-version](https://joinhallway.com/demo/) of Hallway, you'll need to contact [Hallway](https://joinhallway.com) and request the _Bridge_ application to convert from the web's _TCP_ to the _UDP_ protocol. (If you're using the Mac version of HallwayTile, it will broadcast _UDP_ directly.)
+
 <img width="75%" src="https://user-images.githubusercontent.com/85010195/191382689-29dc60e1-0274-4f3f-8771-9bf9bdd76a73.png">
 
 The web demo will broadcast TCP to port `9000`, and the bridge application will convert it from TCP to UDP and forward to port `9001` by default.
