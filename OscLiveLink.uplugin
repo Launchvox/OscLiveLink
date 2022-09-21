@@ -4,10 +4,10 @@
 	"VersionName": "1.0",
 	"FriendlyName": "OSC Live Link",
 	"Description": "Live link tracking over OSC",
-	"Category": "Other",
+	"Category": "Virtual Production",
 	"CreatedBy": "Launchvox",
 	"CreatedByURL": "https://www.launchvox.com",
-	"DocsURL": "",
+	"DocsURL": "https://github.com/Launchvox/OscLiveLink",
 	"MarketplaceURL": "",
 	"SupportURL": "",
 	"CanContainContent": true,
@@ -24,6 +24,10 @@
 	"Plugins": [
 		{
 			"Name": "OSC",
+			"Enabled": true
+		},
+		{
+			"Name": "LiveLink",
 			"Enabled": true
 		}
 	]
