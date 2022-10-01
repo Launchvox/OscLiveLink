@@ -1,7 +1,7 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0",
+	"FileVersion": 4,
+	"Version": 2,
+	"VersionName": "1.1",
 	"FriendlyName": "OSC Live Link",
 	"Description": "Live link tracking over OSC",
 	"Category": "Virtual Production",
@@ -18,7 +18,7 @@
 		{
 			"Name": "OscLiveLink",
 			"Type": "Runtime",
-			"LoadingPhase": "PostConfigInit"
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

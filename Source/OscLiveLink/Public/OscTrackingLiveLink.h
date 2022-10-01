@@ -10,6 +10,7 @@
 #include "OSCMessage.h"
 #include "OSCBundle.h"
 #include "OSCServer.h"
+#include "OscLiveLink.h"
 #include "OSCLiveLink_Settings.h"
 
 
@@ -38,9 +39,7 @@ public:
 
 protected:
 
-
 private:
-
 	TSharedPtr<ILiveLinkProvider> LiveLinkProvider;
 	FDelegateHandle ConnectionStatusChangedHandle;
 	TSharedPtr<FOscTrackingLiveLink> OscLiveLinkComponent;
@@ -48,7 +47,7 @@ private:
 	TArray<FName> ShapeNames;
 	FDelegateHandle OscHandle;
 	TArray<float> Blendshapes;
-	EOscRotationFormat RotationFormat;
+	TSharedPtr<UOSCLiveLink_Settings> PluginSettings;
 
 	void InitializeSubject();
 	void UpdateSubject();

@@ -67,8 +67,6 @@ void FOscLiveLinkModule::InitializeOSCServer(FString Address, int Port)
 
 	if (OSCServer)
 	{
-
-
 		OSCServer->SetAddress(Address, Port);
 		OSCServer->Listen();
 	}

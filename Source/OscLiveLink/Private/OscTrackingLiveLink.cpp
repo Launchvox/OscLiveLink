@@ -2,7 +2,6 @@
 
 
 #include "OscTrackingLiveLink.h"
-#include "OscLiveLink.h"
 #include "Math/Quat.h"
 
 
@@ -12,7 +11,7 @@ FOscTrackingLiveLink::FOscTrackingLiveLink()
 	Blendshapes.Init(0.0, 55);
 }
 
-/*Class Constructor*/
+/*Class Deconstructor*/
 FOscTrackingLiveLink::~FOscTrackingLiveLink()
 {
 	// Should only be called during shutdown
@@ -23,14 +22,10 @@ FOscTrackingLiveLink::~FOscTrackingLiveLink()
 void FOscTrackingLiveLink::Init()
 {
 	IModularFeatures::Get().RegisterModularFeature(GetModularFeatureName(), this);
-	
-	UOSCLiveLink_Settings* Plugin_Settings = GetMutableDefault<UOSCLiveLink_Settings>();
-	RotationFormat = Plugin_Settings->RotationFormat;
-	
 	InitializeSubject();
 	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscMessageReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageEvent);
 	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscBundleReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageBundleEvent);
-
+	UOSCLiveLink_Settings* Plugin_Settings = GetMutableDefault<UOSCLiveLink_Settings>();
 }
 
 /*Shutdown when the module unloads, or when the server changes*/
@@ -47,12 +42,8 @@ void FOscTrackingLiveLink::OnServerSettingsChanged()
 {
 	// Get and apply reset on all Objects of class. Should only ever be one.
 
-	FOscLiveLinkModule Module = FOscLiveLinkModule::Get();
-
-	UOSCLiveLink_Settings* Plugin_Settings = GetMutableDefault<UOSCLiveLink_Settings>();
-	RotationFormat = Plugin_Settings->RotationFormat;
-	Module.InitializeOSCServer(Plugin_Settings->ListeningAddress, Plugin_Settings->ListeningPort);
-	
+	PluginSettings = TSharedPtr<UOSCLiveLink_Settings>(GetMutableDefault<UOSCLiveLink_Settings>());
+	FOscLiveLinkModule::Get().InitializeOSCServer(PluginSettings->ListeningAddress, PluginSettings->ListeningPort);
 	}
 
 /*Setup the livelink subject*/
@@ -68,7 +59,7 @@ void FOscTrackingLiveLink::InitializeSubject()
 	//ConnectionStatusChangedHandle = LiveLinkProvider->RegisterConnStatusChangedHandle(
 	//	FLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(&OnConnectionStatusChanged));
 
-
+	
 	//Initialize Subjects Array
 	Subjects.Reserve(1);
 	Subjects.Add(FName(TEXT("OscHead")));
@@ -138,10 +129,8 @@ void FOscTrackingLiveLink::InitializeSubject()
 	FLiveLinkStaticDataStruct StaticDataStruct(FLiveLinkBaseStaticData::StaticStruct());
 	FLiveLinkBaseStaticData* BaseStaticData = StaticDataStruct.Cast<FLiveLinkBaseStaticData>();
 	BaseStaticData->PropertyNames = ShapeNames;
+	
 	LiveLinkProvider->UpdateSubjectStaticData(Subjects[0], ULiveLinkBasicRole::StaticClass(), MoveTemp(StaticDataStruct));
-
-	FTSTicker::GetCoreTicker().Tick(1.0f);
-
 }
 
 /*Triggered when OSC packages are received to update curve data*/
@@ -199,6 +188,11 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 {
 	FString StringAddress = UOSCManager::ObjectPathFromOSCAddress(Message.GetAddress());
 	
+	// Protect agains nullptr error;
+	if (!PluginSettings.IsValid())
+	{
+		PluginSettings = TSharedPtr<UOSCLiveLink_Settings>(GetMutableDefault<UOSCLiveLink_Settings>());
+	}
 	
 	if (FString("/W")==StringAddress.Left(2)) {
 		//Blendshapes
@@ -212,7 +206,7 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 		return;
 	}
 	//Head Rotation Quaternion
-	else if (FString("/HRQ") == StringAddress.Left(4) && RotationFormat == EOscRotationFormat::Quaternion) {
+	else if (FString("/HRQ") == StringAddress.Left(4) && PluginSettings->RotationFormat == EOscRotationFormat::Quaternion) {
 			FQuat Quat;
 			float buffer;
 			GetFloatWithFallbackInt(Message, buffer, 0);
@@ -224,7 +218,6 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 			GetFloatWithFallbackInt(Message, buffer, 3);
 			Quat.W = buffer;
 			
-
 			FVector QuatToEuler = Quat.Euler();
 
 			Blendshapes[52] = QuatToEuler.X;
@@ -235,7 +228,7 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 			return;
 	}
 	// Head roatoin Euler
-	else if (FString("/HR") == StringAddress.Left(3) && RotationFormat == EOscRotationFormat::Euler) {
+	else if (FString("/HR") == StringAddress.Left(3) && PluginSettings->RotationFormat == EOscRotationFormat::Euler) {
 		float buffer;
 		//Scale rotation factor from degrees to radian
 		float rotationsMult = 0.0174533;
