@@ -24,7 +24,6 @@ class OSCLIVELINK_API FOscTrackingLiveLink : public IModularFeature, public TSha
 public:
 	FOscTrackingLiveLink();
 	virtual ~FOscTrackingLiveLink();
-
 	void Init();
 	void Shutdown();
 
@@ -47,9 +46,10 @@ private:
 	TArray<FName> ShapeNames;
 	FDelegateHandle OscHandle;
 	TArray<float> Blendshapes;
-	TSharedPtr<UOSCLiveLink_Settings> PluginSettings;
+	UOSCLiveLink_Settings* PluginSettings;
 
 	void InitializeSubject();
+	void BindDelegates();
 	void UpdateSubject();
 	void ClearLiveLinkProvider();
 

@@ -14,8 +14,12 @@ FOscTrackingLiveLink::FOscTrackingLiveLink()
 /*Class Deconstructor*/
 FOscTrackingLiveLink::~FOscTrackingLiveLink()
 {
-	// Should only be called during shutdown
-	//check(IsEngineExitRequested());
+}
+
+void FOscTrackingLiveLink::BindDelegates() {
+
+	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscMessageReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageEvent);
+	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscBundleReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageBundleEvent);
 }
 
 /*Initialize only after the server is running so that bindings succeed*/
@@ -23,11 +27,10 @@ void FOscTrackingLiveLink::Init()
 {
 	IModularFeatures::Get().RegisterModularFeature(GetModularFeatureName(), this);
 	InitializeSubject();
-	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscMessageReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageEvent);
-	OscHandle = FOscLiveLinkModule::Get().OSCServer->OnOscBundleReceivedNative.AddSP(this, &FOscTrackingLiveLink::OSCReceivedMessageBundleEvent);
-	UOSCLiveLink_Settings* Plugin_Settings = GetMutableDefault<UOSCLiveLink_Settings>();
+	PluginSettings = GetMutableDefault<UOSCLiveLink_Settings>();
+	FOscLiveLinkModule::Get().InitializeOSCServer(PluginSettings->ListeningAddress, PluginSettings->ListeningPort);
+	BindDelegates();
 }
-
 /*Shutdown when the module unloads, or when the server changes*/
 void FOscTrackingLiveLink::Shutdown()
 {
@@ -42,8 +45,9 @@ void FOscTrackingLiveLink::OnServerSettingsChanged()
 {
 	// Get and apply reset on all Objects of class. Should only ever be one.
 
-	PluginSettings = TSharedPtr<UOSCLiveLink_Settings>(GetMutableDefault<UOSCLiveLink_Settings>());
+	PluginSettings = GetMutableDefault<UOSCLiveLink_Settings>();
 	FOscLiveLinkModule::Get().InitializeOSCServer(PluginSettings->ListeningAddress, PluginSettings->ListeningPort);
+	BindDelegates();
 	}
 
 /*Setup the livelink subject*/
@@ -58,8 +62,7 @@ void FOscTrackingLiveLink::InitializeSubject()
 	LiveLinkProvider = ILiveLinkProvider::CreateLiveLinkProvider(TEXT("HallwayTile OSC"));
 	//ConnectionStatusChangedHandle = LiveLinkProvider->RegisterConnStatusChangedHandle(
 	//	FLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(&OnConnectionStatusChanged));
-
-	
+		
 	//Initialize Subjects Array
 	Subjects.Reserve(1);
 	Subjects.Add(FName(TEXT("OscHead")));
@@ -189,9 +192,9 @@ void FOscTrackingLiveLink::OSCReceivedMessageEvent(const FOSCMessage& Message, c
 	FString StringAddress = UOSCManager::ObjectPathFromOSCAddress(Message.GetAddress());
 	
 	// Protect agains nullptr error;
-	if (!PluginSettings.IsValid())
+	if (!PluginSettings)
 	{
-		PluginSettings = TSharedPtr<UOSCLiveLink_Settings>(GetMutableDefault<UOSCLiveLink_Settings>());
+		PluginSettings = GetMutableDefault<UOSCLiveLink_Settings>();
 	}
 	
 	if (FString("/W")==StringAddress.Left(2)) {
