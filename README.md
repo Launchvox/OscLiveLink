@@ -1,5 +1,8 @@
 # OscLiveLink
 
+> **Warning**
+> The System currently supports Degrees,  which can be selected in Project Settings. Radians will be supported in the next update.
+
 Using the [Hallway Tile](https://joinhallway.com/) standard, this plugin receives OSC messages and applies them as a [LiveLink](https://docs.unrealengine.com/5.0/en-US/live-link-in-unreal-engine/) source to animate [MetaHumans](https://www.unrealengine.com/en-US/metahuman) in Unreal.
 
 <img align="left" width="100%" src="https://user-images.githubusercontent.com/85010195/191375085-08470afc-e564-4d1c-bb59-14270e71dc95.gif"><br/><br/><br/><br/>
